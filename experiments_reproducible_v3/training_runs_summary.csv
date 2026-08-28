@@ -1,0 +1,4 @@
+seed,requested_timesteps,stored_timesteps,episodes,first_20_episode_mean_reward,final_20_episode_mean_reward,training_seconds,model_path,model_sha256
+101,35000,35072,6016,-1.715,3.585,183.1752911,experiments_reproducible_v3/seed_101/ppo_electrode_agent.zip,df7f50748191997b4abf6f8c30513adf5f0bf8c191c3c02d8534ec2ca0dfbbfa
+202,35000,35072,5773,-0.775,3.025,176.0962352,experiments_reproducible_v3/seed_202/ppo_electrode_agent.zip,c2458429a6eacffde04daf64c5ebfe68904c242c8a4c81f25732949f777267a5
+303,35000,35072,5964,-0.4925,3.9175,181.1687824,experiments_reproducible_v3/seed_303/ppo_electrode_agent.zip,e5a06675d39ac0c24e27d050170e8dc98fe52247ff3eb4db48f556cf10e79bb8
