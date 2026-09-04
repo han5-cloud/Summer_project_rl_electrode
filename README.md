@@ -1,25 +1,31 @@
 # Reinforcement Learning Using RGB-D Cues to Detect Material Impurity in a Battery Electrode Recycling Process
 
-This repository contains the reproducible code and evidence for a **pure-simulation proof of concept**. It does not contain measurements from a physical RGB-D camera or real battery-electrode samples.
+This repository contains a reproducible procedural-simulation study of active residue inspection. The simulator generates co-indexed RGB and dimensionless relative-height arrays, and a PPO policy moves an inspection window before deciding when to confirm a region.
 
-The simulator produces a synthetic RGB image and a synthetic relative-height channel. The latter is expressed in dimensionless **synthetic relative-height units (SRHU)** and must not be interpreted as millimetres or measured coating thickness. A PPO agent moves an inspection window and decides when to confirm a residue-containing region.
+The final experiment trains three controlled input conditions with 10 seeds each:
+
+- `combined`: RGB-texture and relative-height features are available;
+- `rgb_only`: the two height-derived observation values are zeroed;
+- `height_only`: the two RGB-derived observation values are zeroed.
+
+All conditions retain the same seven-value observation shape, network, reward, action space, procedural scene distribution and 35,000-requested-timestep budget.
 
 ## Repository contents
 
 | Path | Purpose |
 |---|---|
-| `rl_environment.py` | Procedural scene generator and Gymnasium environment. |
-| `train_ppo_three_seeds.py` | Trains PPO (Proximal Policy Optimisation) with seeds 101, 202 and 303. |
-| `evaluate_three_seed_models.py` | Evaluates random, fixed-sweep and PPO policies on shared test scenes. |
-| `experiments_reproducible_v3/` | Included trained models, training summary and training curve. |
-| `evaluation_outputs_reproducible_v3/` | Episode-level data, summary tables and report figures. |
-| `REPRODUCTION_GUIDE.md` | Detailed step-by-step reproduction guide. |
+| `step3_rl_environment_reproducible.py` | Procedural scene generator, observation ablation and Gymnasium environment. |
+| `train_multimodal_10seeds.py` | Trains combined, RGB-only and relative-height-only PPO policies with 10 seeds and records timing. |
+| `evaluate_multimodal_10seeds.py` | Runs shared-scene evaluation, seed summaries, hierarchical paired bootstrap and failure-case output. |
+| `redraw_policy_figures.py` | Rebuilds the clearer report plots from archived summary CSV files without rerunning policies or changing statistics. |
+| `experiments_multimodal_10seeds/` | Thirty trained models, reward histories, hashes, timing summaries and the training figure. |
+| `evaluation_outputs_multimodal_10seeds/` | Episode-level data, statistical tables, timing data and final report figures. |
+| `REPRODUCTION_GUIDE.md` | Step-by-step full and quick reproduction instructions. |
+| `train_ppo_three_seeds.py`, `evaluate_three_seed_models.py` | Preserved legacy three-seed workflow for the earlier analysis. |
 
 ## Software environment
 
-The reported run used Python 3.11.9. Exact package versions are listed in `requirements.txt`.
-
-On Windows PowerShell:
+The reported run used Python 3.11.9 and the pinned packages in `requirements.txt`.
 
 ```powershell
 py -3.11 -m venv .venv
@@ -28,73 +34,91 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-## Reproduction
+## Reproduce the final evaluation
 
-### 1. Verify the environment logic
-
-```powershell
-python .\rl_environment.py
-```
-
-Expected checks include an observation shape of `(7,)` and confirmation that the same explicit seed reproduces the same observation.
-
-### 2. Re-evaluate the included trained models
-
-Use a new output directory because the evaluator deliberately refuses to overwrite existing evidence:
+The evaluator deliberately refuses to overwrite a non-empty output directory.
 
 ```powershell
-python .\evaluate_three_seed_models.py `
-  --experiment-dir .\experiments_reproducible_v3 `
-  --output-dir .\reproduced_evaluation `
-  --training-seeds 101 202 303 `
+python .\evaluate_multimodal_10seeds.py `
+  --experiment-dir .\experiments_multimodal_10seeds `
+  --output-dir .\reproduced_evaluation_multimodal `
+  --training-seeds 101 202 303 404 505 606 707 808 909 1010 `
+  --modes combined rgb_only height_only `
   --episodes 1000 `
   --calibration-episodes 100 `
   --modality-scenes 200 `
-  --evaluation-seed 20260827
+  --evaluation-seed 20260827 `
+  --workers 3
 ```
 
-The **evaluation seed** is only a fixed random-number starting point. It makes the same calibration, test and bootstrap-resampling sequences reproducible; it has no physical meaning.
-
-### 3. Retrain all three models from scratch (optional full reproduction)
+## Retrain all 30 policies
 
 ```powershell
-python .\train_ppo_three_seeds.py `
-  --seeds 101 202 303 `
+python .\train_multimodal_10seeds.py `
+  --seeds 101 202 303 404 505 606 707 808 909 1010 `
+  --modes combined rgb_only height_only `
   --timesteps 35000 `
-  --output-dir .\retrained_models
+  --workers 3 `
+  --output-dir .\retrained_multimodal_10seeds
 ```
 
-Then evaluate the new models by replacing `--experiment-dir` with `.\retrained_models`. Training is deterministic on the reported CPU setup, but exact binary files or training time may differ across operating systems and numerical-library builds.
+If a run is interrupted, repeat the command with `--resume`. Complete condition/seed folders are retained and only missing runs are trained.
 
-## Reported policy results
+## Final policy results
 
-Each policy was evaluated on the same 1,000 synthetic scenes. Intervals are non-parametric **bootstrap 95% confidence intervals** based on 3,000 resamples.
+Every policy received the same 1,000 scene and starting-position seeds. PPO rows are means across 10 training seeds; the standard deviation is across those seeds.
 
-| Policy | Success | False confirmation | Timeout | Mean reward | Mean steps |
+| Condition | Mean success | Sample SD | Seed range | Mean false confirmation | Mean timeout |
 |---|---:|---:|---:|---:|---:|
-| Random | 23.6% | 74.8% | 1.6% | -1.344 | 3.95 |
-| Fixed sweep | 89.5% | 0.0% | 10.5% | 3.657 | 6.10 |
-| PPO seed 101 | 95.4% | 0.8% | 3.8% | 3.984 | 5.57 |
-| PPO seed 202 | 94.4% | 2.0% | 3.6% | 3.902 | 5.62 |
-| PPO seed 303 | 95.3% | 0.1% | 4.6% | 3.994 | 5.59 |
+| Combined PPO | 94.16% | 1.84 pp | 90.0--96.2% | 1.01% | 4.83% |
+| RGB-only PPO | 94.87% | 1.55 pp | 91.2--96.1% | 3.99% | 1.14% |
+| Relative-height-only PPO | 93.61% | 1.66 pp | 90.0--95.3% | 1.97% | 4.42% |
+| Fixed sweep | 89.5% | -- | -- | 0.0% | 10.5% |
+| Random | 23.6% | -- | -- | 74.8% | 1.6% |
 
-Across the three PPO training seeds, mean success was 95.03%, with a sample standard deviation of 0.55 percentage points. The complete unrounded results are in `evaluation_outputs_reproducible_v3/policy_summary.csv` and `ppo_across_training_seeds.csv`.
+The hierarchical paired bootstrap resampled both the 10 training seeds and 1,000 shared scenes. Combined minus fixed sweep was +4.66 percentage points (95% CI 2.51 to 6.82). The corresponding intervals for RGB-only and relative-height-only versus fixed sweep were also above zero. All pairwise intervals among the three PPO input conditions crossed zero, so the experiment does not identify one PPO input condition as more accurate than the other two.
 
-![Policy comparison](evaluation_outputs_reproducible_v3/policy_comparison_three_seeds.png)
+![Success and paired differences](evaluation_outputs_multimodal_10seeds/policy_success_and_paired_differences.png)
 
-## Key terms
+The similar PPO success rates are consistent with cue redundancy in the generator. RGB variance and positive relative height are placed using the same latent ellipse geometry. In the mask benchmark, relative-height thresholding already achieved F1 0.995, RGB texture achieved F1 0.978 and late-OR fusion achieved F1 0.980. Fusion therefore did not improve on the near-perfect height result in this generator family.
 
-- **RGB-D (colour plus depth)** normally means aligned colour and physical depth images. In this repository, the second channel is simulated relative height, not camera depth.
-- **Observation** is the seven-number input available to the policy at one step; it is not the complete hidden simulator state.
-- **Ground-truth mask** is the hidden procedural residue region used only for reward and evaluation.
-- **Seed** fixes a pseudo-random sequence so an experiment can be repeated.
-- **Fixed sweep** moves through the scene using a hand-written rule and confirms when the observed cue exceeds a calibrated threshold.
-- **Timeout** means the episode reached its movement or step limit without a correct confirmation.
+![Policy error profiles](evaluation_outputs_multimodal_10seeds/policy_error_profiles.png)
 
-## Scope and limitations
+Every formal scene contains residue. The reported false-confirmation rate therefore means premature stopping below the 12% local-coverage criterion; it is not a false alarm on clean foil.
 
-- Every result is generated in simulation; no real electrode, camera, conveyor or robot was tested.
-- The relative-height signal and the ground-truth mask originate from the same latent ellipse geometry. This makes the height benchmark favourable and does not establish real-sensor validity.
-- Every current scene contains residue, so sample-level false alarms on completely clean foil were not tested.
-- The simulator does not model invalid depth pixels, aluminium reflections, perspective, lens distortion or conveyor vibration.
-- No pixel-to-millimetre calibration is used, so no physical residue size or coating thickness is claimed.
+## Redraw the report figures without rerunning evaluation
+
+```powershell
+python .\redraw_policy_figures.py `
+  --input-dir .\evaluation_outputs_multimodal_10seeds
+```
+
+This command reads the archived policy, condition and paired-bootstrap summaries. It changes only the visual presentation and leaves all formal statistics unchanged.
+
+## Failure-case output
+
+Scene seed `2215982` gives an illustrative policy-level contrast. Combined seed 101 stopped successfully at step 5 with 17.13% true coverage; combined seed 202 falsely confirmed at step 14 with 8.07% true coverage, below the 12% success criterion.
+
+![Failure case for scene seed 2215982](evaluation_outputs_multimodal_10seeds/failure_case_seed_2215982.png)
+
+## Computational cost
+
+- Thirty training tasks summed to 107.46 minutes; three concurrent workers completed them in 36.1 minutes elapsed time.
+- A run averaged 214.92 +/- 3.43 seconds for 35,072 stored timesteps.
+- Thirty PPO evaluation tasks summed to 15.39 minutes and averaged 30.78 +/- 0.31 seconds per 1,000-scene policy.
+- The complete evaluation workflow took 6.79 minutes elapsed time with three workers.
+
+These are measured wall-clock values for the reported CPU execution. Complete timings are stored in `training_cost_summary.csv` and `evaluation_timing.csv`.
+
+## Main output files
+
+- `policy_condition_summary.csv`: condition-level means, sample SDs, ranges and t-based intervals across 10 seeds;
+- `paired_bootstrap_summary.csv`: paired success-rate differences and 95% intervals;
+- `policy_summary.csv`: scene-bootstrap summaries for each individual policy;
+- `episode_results.csv`: 32,000 policy-by-scene records;
+- `failure_case_seed_2215982.csv`: exact actions and final-window values for the illustrated case;
+- `evaluation_metadata.json`: seeds, hashes, settings and statistical definitions.
+
+## Interpretation boundary
+
+The evidence supports a PPO improvement over fixed sweep under the implemented procedural distribution. Relative height is expressed in synthetic relative-height units (SRHU), and the mask benchmark shares latent geometry with the generator. A future clean-aware task should add explicit clean scenes to training and evaluation, separate terminal decisions for accepting clean foil and identifying residue, and report false acceptance on contaminated scenes and false rejection on clean scenes. Transfer to intact electrodes and other surface distributions also requires separate validation.
