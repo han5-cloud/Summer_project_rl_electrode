@@ -1,0 +1,75 @@
+{
+  "experiment_type": "three_observation_conditions_by_ten_training_seeds",
+  "observation_modes": [
+    "combined",
+    "rgb_only",
+    "height_only"
+  ],
+  "training_seeds": [
+    101,
+    202,
+    303,
+    404,
+    505,
+    606,
+    707,
+    808,
+    909,
+    1010
+  ],
+  "runs": 30,
+  "requested_timesteps_per_run": 35000,
+  "worker_processes": 3,
+  "wall_seconds_for_this_invocation": 2165.277649000054,
+  "timing_definition": "Per-run wall-clock seconds measured around model.learn using time.perf_counter. Concurrent workers may share CPU resources.",
+  "cost_summary": [
+    {
+      "observation_mode": "combined",
+      "runs": 10,
+      "requested_timesteps_total": 350000,
+      "stored_timesteps_total": 350720,
+      "training_seconds_total": 2163.775907999603,
+      "training_hours_total": 0.601048863333223,
+      "training_seconds_mean_per_run": 216.3775907999603,
+      "training_seconds_sample_sd": 2.6422339675018605,
+      "training_seconds_min": 211.1327583999373,
+      "training_seconds_max": 219.48373799980618
+    },
+    {
+      "observation_mode": "rgb_only",
+      "runs": 10,
+      "requested_timesteps_total": 350000,
+      "stored_timesteps_total": 350720,
+      "training_seconds_total": 2139.566571199801,
+      "training_hours_total": 0.5943240475555003,
+      "training_seconds_mean_per_run": 213.9566571199801,
+      "training_seconds_sample_sd": 2.846156335460588,
+      "training_seconds_min": 207.03355919988826,
+      "training_seconds_max": 216.98317689984106
+    },
+    {
+      "observation_mode": "height_only",
+      "runs": 10,
+      "requested_timesteps_total": 350000,
+      "stored_timesteps_total": 350720,
+      "training_seconds_total": 2144.330824899953,
+      "training_hours_total": 0.595647451361098,
+      "training_seconds_mean_per_run": 214.4330824899953,
+      "training_seconds_sample_sd": 4.384124221292562,
+      "training_seconds_min": 202.6670667999424,
+      "training_seconds_max": 217.77542930003256
+    },
+    {
+      "observation_mode": "all_conditions",
+      "runs": 30,
+      "requested_timesteps_total": 1050000,
+      "stored_timesteps_total": 1052160,
+      "training_seconds_total": 6447.673304099357,
+      "training_hours_total": 1.7910203622498213,
+      "training_seconds_mean_per_run": 214.92244346997856,
+      "training_seconds_sample_sd": 3.4321988260212635,
+      "training_seconds_min": 202.6670667999424,
+      "training_seconds_max": 219.48373799980618
+    }
+  ]
+}
