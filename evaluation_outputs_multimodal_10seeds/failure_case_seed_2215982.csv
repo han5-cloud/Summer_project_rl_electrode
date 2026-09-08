@@ -1,0 +1,3 @@
+scene_seed,outcome,observation_mode,training_seed,steps,actions,final_x,final_y,final_true_ratio,final_rgb_texture_ratio,final_height_ratio,total_reward
+2215982,successful_stop,combined,101,5,1-1-1-1-3,234,140,0.1713,0.16500000655651093,0.16949999332427979,4.3
+2215982,false_confirmation,combined,202,14,1-1-1-0-1-1-1-0-1-1-1-0-1-3,339,455,0.0807,0.09139999747276306,0.0803999975323677,-3.65
