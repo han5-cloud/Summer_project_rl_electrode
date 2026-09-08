@@ -1,0 +1,56 @@
+{
+  "observation_mode": "height_only",
+  "seed": 101,
+  "requested_timesteps": 35000,
+  "stored_timesteps": 35072,
+  "episodes": 5927,
+  "first_20_episode_mean_reward": -1.7150000000000003,
+  "final_20_episode_mean_reward": 4.367500000000001,
+  "training_seconds": 216.93742899992503,
+  "model_relative_path": "height_only\\seed_101\\ppo_electrode_agent.zip",
+  "model_sha256": "ee0b00a4b6185d2abce3665d1b7ac8df678f2faeb4e1d7646bf2f74d618c4eb5",
+  "algorithm": "Stable-Baselines3 PPO with MlpPolicy",
+  "policy_network": "two 64-unit Tanh hidden layers for actor and critic (framework default)",
+  "ablation_control": "The observation remains seven-dimensional. Combined exposes all features; rgb_only zeros indices 4-5; height_only zeros indices 2-3.",
+  "hyperparameters": {
+    "learning_rate": 0.0003,
+    "n_steps": 256,
+    "batch_size": 64,
+    "gamma": 0.99,
+    "device": "cpu",
+    "torch_threads": 1,
+    "deterministic_torch_algorithms": true
+  },
+  "environment": {
+    "actions": 4,
+    "observation_values": 7,
+    "observation_mode": "height_only",
+    "maximum_episode_steps": 15,
+    "confirmation_coverage_threshold": 0.12,
+    "height_units": "dimensionless synthetic relative-height units (SRHU)",
+    "background_height_noise_std": 0.01,
+    "residue_height_range": [
+      0.1,
+      0.5
+    ],
+    "height_detection_threshold": 0.1
+  },
+  "software": {
+    "python": "3.11.9",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "gymnasium": "1.3.0",
+    "stable_baselines3": "2.9.0",
+    "torch": "2.13.0+cpu"
+  },
+  "source_files": {
+    "environment": {
+      "path": "step3_rl_environment_reproducible.py",
+      "sha256": "1db548336a3738c323de0572d2581a1693e256136a0e8c17adb7640a0840d165"
+    },
+    "training": {
+      "path": "train_multimodal_10seeds.py",
+      "sha256": "5fe1bfafdcfea85ed6314375df3bab48732eff86573a2951e894fa3ef8ef0617"
+    }
+  }
+}
